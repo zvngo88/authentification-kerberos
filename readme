@@ -5,7 +5,7 @@ Dans ce cas de figure nous allons utiliser trois machines :
 •	Client
 Les trois machines devront etre synchronises en heure.
 Sur le serveur :
- 
+ ![](Nouveau%20dossier/1.png)
 Dans le fichier /etc/hosts des trois machines on va ajouter les @ip des machines.
  
 On va tester la connexion entre les 3 machines. A partir du serveur on va pinguer les autres machines(client et apache)
