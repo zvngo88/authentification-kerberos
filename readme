@@ -1,0 +1,101 @@
+PROJET KERBEROS
+Dans ce cas de figure nous allons utiliser trois machines :
+•	Serveur(kdc)
+•	Serveur web(apache)
+•	Client
+Les trois machines devront etre synchronises en heure.
+Sur le serveur :
+ 
+Dans le fichier /etc/hosts des trois machines on va ajouter les @ip des machines.
+ 
+On va tester la connexion entre les 3 machines. A partir du serveur on va pinguer les autres machines(client et apache)
+ 
+
+Meme chose sur la machine cliente et sur la machine apache.
+Sur la cliente :
+ 
+Sur la machine apache :
+ 
+Sur la machine serveur on va installer les paquets necessaires
+ 
+La configuration du royaume :
+ 
+Configuration du serveur
+ 
+ 
+
+ 
+Après cette configuration nous allons definir les principales
+ 
+Ensuite nous allons accordé les permissions necessaires au principal qu’on vient de créer.
+ 
+Redémarrage du service.
+ 
+On va maintenant créer un autre principal appelé zango.
+ 
+Nous allons egalement créer un principal pour le serveur apache.
+ 
+
+Sur le serveur apache nous allons installer apache2 :
+ 
+Installation de curl sur le serveur apache
+ 
+
+Configuration du site web apache :
+Nous allons créer un site appelé dickel.ml qui sera stocke dans /home/dev/dickel
+Pour ça on va commencer par créer un dossier /home/dev/dickel et changer le propriétaire et le groupe propriétaire du fichier
+ 
+Puis nous allons créer le fichier de configuration de notre site :
+Dans le fichier /etc/apache2/001-monsite.conf
+ 
+ 
+Nous devons créer le site en creant un lien symbolique vers sites-enabled avec :
+ 
+Ensuite nous allons passer a la creatio  d’un fichier appele .htaccess afin que nous puissions relier www.dickel.tn a dickel.tn 
+ 
+
+Le mode rewrite sera activé par la suite 
+ 
+On va ensuite configurer le fichier config de la page par defaut pour qu’elle puisse pointer sur notre site
+
+ 
+Pour que toutes les modifications soient prises en charge on doit redemarrer le service apache
+  
+Configuration de kerberos :
+On installe le packet avec : sudo apt install libapache2-mod-auth-kerb
+Après avoir suivis les etapes on passe a l’installation du packer krb5-user.
+ 
+Preparation du keytab :
+Sur la machine kdc on va generer le fichier keytab avec :
+ 
+On peut verifier la creation avec la commande :
+sudo klist -kt /etc/krb5.keytab
+ 
+Après avoir generer le keytab on va l’envoyer via ssh (openssh) sur le serveur apache pour cela il faut que le packer openssh-server soit deja installé
+ 
+Sur la machine apache on va extraire le keytab avec la commande :
+ 
+La prochaine etape sera de configurer notre site ,pour cela nous ajouter dans le fichier site-available/001-monsite.conf
+<Location />
+                AuthType Kerberos
+                AuthName "BIG flip flop"
+                KrbAuthRealms TEKUP.TN
+                KrbServiceName apache.tekup.tn
+                KrbMethodNegotiate on
+                KrbMethodK5Passwd off
+                Krb5Keytab /home/zango/Desktop/krb5.keytab
+        </Location>
+ 
+
+Sur la machine cliente on va lancer l’installation du packet krb5-user
+Le nom du royaume est TEKUP.TN
+ 
+On va generer un ticket pour un user 
+ 
+On verifie l’acces au service avec les commandes suivantes :
+curl --negotiate -u : apacheserver
+ou
+curl --negotiate -u : apacheserver.tek-up.de
+ou encore
+curl --negotiate -u : 192.168.111.134
+ 
